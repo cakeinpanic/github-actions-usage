@@ -25,9 +25,10 @@ class RepoData:
         self.name = name
         self.usage = usage
         self.actions = actions
-        self.totalUsage = self.usage["UBUNTU"] + self.usage["MACOS"] + self.usage["WINDOWS"]
-        logger.info(f"AAAAAAAAA {self.totalUsage}")
-
+        
+    @property
+    def totalUsage(self):
+        return self.usage["UBUNTU"] + self.usage["MACOS"] + self.usage["WINDOWS"]
 
 logger = getlogger()
 
