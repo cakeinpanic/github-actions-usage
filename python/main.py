@@ -25,6 +25,8 @@ class RepoData:
         self.name = name
         self.usage = usage
         self.actions = actions
+        self.totalUsage = self.usage["UBUNTU"] + self.usage["MACOS"] + self.usage["WINDOWS"]
+        logger.info(f"AAAAAAAAA {self.totalUsage}")
 
 
 logger = getlogger()
@@ -44,6 +46,7 @@ def main():
     repos_usage = []
     total_costs = dict.fromkeys(['UBUNTU', 'MACOS', 'WINDOWS'], 0)
     ignore_empty = True if os.environ['INPUT_SKIPREPOSWITHOUTUSAGE'] == 'true' else False
+    i =0
     # Collect the data from each repo
     for repo_name in repo_names:
         actions = []
@@ -57,6 +60,15 @@ def main():
         total_costs["UBUNTU"] += repo_data.usage["UBUNTU"]
         total_costs["MACOS"] += repo_data.usage["MACOS"]
         total_costs["WINDOWS"] += repo_data.usage["WINDOWS"]
+
+        logger.info(f"TOTAL USAGE { repo_data.totalUsage}")
+
+        if repo_data.usage["UBUNTU"] > 0:
+           i = i+1
+        if i > 5:
+           break
+
+    repos_usage.sort(key=lambda x: x.totalUsage, reverse=True)
 
     logger.info(f"***************Total Costs: {total_costs} *******************")
     # table tp print out per repo/workflow
@@ -132,6 +144,11 @@ def main():
     workflow_table.add_row(["Days Left in Cycle: " + str(billing_days_left), "", "", "", ""])
     print(summary_table)
     print(workflow_table)
+
+
+    with open('test.csv', 'w', newline='') as f_output:
+        f_output.write(workflow_table.get_csv_string())
+
     # we should throw an error if we are running out of minutes as a warning
     # minutes buffer is how low the minutes should get before failing and raising an alarm
     if remaining_minutes < int(raise_alarm_remaining_minutes):
